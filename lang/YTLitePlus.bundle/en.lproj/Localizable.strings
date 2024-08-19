@@ -13,6 +13,9 @@
 "REPLACE_COPY_AND_PASTE_BUTTONS" = "Replace 'Copy Settings' & 'Paste Settings' Buttons";
 "REPLACE_COPY_AND_PASTE_BUTTONS_DESC" = "Replaces the Buttons to 'Export Settings' and 'Import Settings'";
 
+"VIDEO_PLAYER" = "Video Player (Beta)";
+"VIDEO_PLAYER_DESC" = "Open a downloaded video in the Apple player";
+
 // Video controls overlay options
 "VIDEO_CONTROLS_OVERLAY_OPTIONS" = "Video Controls Overlay Options";
 
@@ -69,6 +72,9 @@
 
 "HIDE_COLLAPSE_BUTTON" = "Hide Collapse Button";
 "HIDE_COLLAPSE_BUTTON_DESC" = "Hides the Arrow Collapse Button that was shown in the Top Left of the Video Player.";
+
+"HIDE_SPEED_TOAST" = "Hide Speed Toast";
+"HIDE_SPEED_TOAST_DESC" = "Hide the 2X Speed popup when holding the player";
 
 // App settings overlay options
 "APP_SETTINGS_OVERLAY_OPTIONS" = "App Settings Overlay Options";

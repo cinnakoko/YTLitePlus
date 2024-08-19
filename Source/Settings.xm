@@ -47,6 +47,8 @@ static int appVersionSpoofer() {
 
 @interface YTSettingsSectionItemManager (YTLitePlus)
 - (void)updateYTLitePlusSectionWithEntry:(id)entry;
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls;
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller;
 @end
 
 extern NSBundle *YTLitePlusBundle();
@@ -197,6 +199,29 @@ static const NSInteger YTLiteSection = 789;
     ];
     [sectionItems addObject:pasteSettings];
 
+    YTSettingsSectionItem *videoPlayer = [%c(YTSettingsSectionItem)
+        itemWithTitle:LOC(@"VIDEO_PLAYER")
+        titleDescription:LOC(@"VIDEO_PLAYER_DESC")
+        accessibilityIdentifier:nil
+        detailTextBlock:nil
+        selectBlock:^BOOL (YTSettingsCell *cell, NSUInteger arg1) {
+            // Access the current view controller
+            UIViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
+            if (settingsViewController) {
+                // Present the video picker
+                UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[(NSString *)kUTTypeMovie, (NSString *)kUTTypeVideo] inMode:UIDocumentPickerModeImport];
+                documentPicker.delegate = (id<UIDocumentPickerDelegate>)self;
+                documentPicker.allowsMultipleSelection = NO;
+                [settingsViewController presentViewController:documentPicker animated:YES completion:nil];
+            } else {
+                NSLog(@"settingsViewController is nil");
+            }
+            
+            return YES; // Return YES to indicate that the action was handled
+        }
+    ];
+    [sectionItems addObject:videoPlayer];
+
 /*
     YTSettingsSectionItem *appIcon = [%c(YTSettingsSectionItem)
         itemWithTitle:LOC(@"CHANGE_APP_ICON")
@@ -233,7 +258,7 @@ static const NSInteger YTLiteSection = 789;
             BASIC_SWITCH(LOC(@"HIDE_AUTOPLAY_MINI_PREVIEW"), LOC(@"HIDE_AUTOPLAY_MINI_PREVIEW_DESC"), @"hideAutoplayMiniPreview_enabled"),
             BASIC_SWITCH(LOC(@"HIDE_HUD_MESSAGES"), LOC(@"HIDE_HUD_MESSAGES_DESC"), @"hideHUD_enabled"),
             BASIC_SWITCH(LOC(@"HIDE_COLLAPSE_BUTTON"), LOC(@"HIDE_COLLAPSE_BUTTON_DESC"), @"disableCollapseButton_enabled"),
-            
+            BASIC_SWITCH(LOC(@"HIDE_SPEED_TOAST"), LOC(@"HIDE_SPEED_TOAST_DESC"), @"hideSpeedToast_enabled"),
         ];        
         YTSettingsPickerViewController *picker = [[%c(YTSettingsPickerViewController) alloc] initWithNavTitle:LOC(@"VIDEO_CONTROLS_OVERLAY_OPTIONS") pickerSectionTitle:nil rows:rows selectedItemIndex:NSNotFound parentResponder:[self parentResponder]];
         [settingsViewController pushViewController:picker];
@@ -479,4 +504,31 @@ static const NSInteger YTLiteSection = 789;
     }
     %orig;
 }
+
+// Implement the delegate method for document picker
+%new
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+    NSURL *pickedURL = [urls firstObject];
+    
+    if (pickedURL) {
+        // Use AVPlayerViewController to play the video
+        AVPlayer *player = [AVPlayer playerWithURL:pickedURL];
+        AVPlayerViewController *playerViewController = [[AVPlayerViewController alloc] init];
+        playerViewController.player = player;
+        
+        UIViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
+        if (settingsViewController) {
+            [settingsViewController presentViewController:playerViewController animated:YES completion:^{
+                [player play];
+            }];
+        }
+    }
+}
+
+%new
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+    // Handle cancellation if needed
+    NSLog(@"Document picker was cancelled");
+}
+
 %end
